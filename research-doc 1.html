@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Documentation</title>
+<style>
+  :root {
+    --blue-bg: #dce4f7; --blue-text: #2e3f7a; --blue-border: #6B7EBB;
+    --green-bg: #d4edda; --green-text: #1e5c33; --green-border: #5a9e6e;
+    --purple-bg: #e8d8f7; --purple-text: #4a2b7a; --purple-border: #7B5EA7;
+    --gray-bg: #F1EFE8; --gray-text: #444441; --gray-border: #888780;
+    --shared-bg: #eef0f4; --shared-text: #555;
+    --page-bg: #d6dce8;
+    --card-bg: #ffffff;
+    --text-primary: #1a1a1a;
+    --text-secondary: #555;
+    --text-muted: #888;
+    --border: #e0ddd6;
+    --border-strong: #c8c5bc;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.07);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--page-bg); color: var(--text-primary); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 15px; line-height: 1.6; }
+
+  .page { max-width: 780px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+
+  /* Header */
+  .page-header { margin-bottom: 2rem; }
+  .page-header h1 { font-size: 22px; font-weight: 600; color: var(--text-primary); }
+  .page-header p { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+  .autosave-indicator { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+  .autosave-dot { width: 7px; height: 7px; border-radius: 50%; background: #5a9e6e; }
+
+  /* Cards / sections */
+  .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; overflow: hidden; box-shadow: var(--shadow); }
+  .card-header { padding: 13px 18px; background: #fafaf8; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; user-select: none; }
+  .card-header.static { cursor: default; }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .card-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+  .card-body { padding: 18px; }
+  .chevron { font-size: 13px; color: var(--text-muted); transition: transform 0.2s; }
+  .collapsed .chevron { transform: rotate(-90deg); }
+  .collapsible-body { }
+  .collapsible-body.hidden { display: none; }
+
+  /* Instructions */
+  .instructions-list { list-style: none; padding: 0; }
+  .instructions-list li { display: flex; gap: 10px; padding: 6px 0; font-size: 14px; color: var(--text-secondary); border-bottom: 1px solid var(--border); }
+  .instructions-list li:last-child { border-bottom: none; }
+  .instructions-list li::before { content: '→'; color: var(--text-muted); flex-shrink: 0; }
+  .instructions-note { font-size: 13px; color: var(--text-muted); margin-top: 12px; line-height: 1.6; }
+  .link { color: var(--blue-border); text-decoration: none; }
+  .link:hover { text-decoration: underline; }
+
+  /* Source cards */
+  .source-card { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 12px; background: #fdfcfa; }
+  .source-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .source-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+  .btn-remove { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px; line-height: 1; padding: 0 4px; }
+  .btn-remove:hover { color: #c0392b; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .field-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 560px) { .field-row, .field-row.three { grid-template-columns: 1fr; } }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .field input, .field select, .field textarea { font-family: inherit; font-size: 13px; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fff; color: var(--text-primary); width: 100%; transition: border-color 0.15s; }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--blue-border); box-shadow: 0 0 0 3px rgba(107,126,187,0.1); }
+  .field textarea { resize: vertical; min-height: 70px; }
+  .facts-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+  .facts-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  @media (max-width: 560px) { .facts-grid { grid-template-columns: 1fr; } }
+  .facts-grid textarea { font-family: inherit; font-size: 13px; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fff; color: var(--text-primary); resize: vertical; min-height: 64px; transition: border-color 0.15s; }
+  .facts-grid textarea:focus { outline: none; border-color: var(--blue-border); box-shadow: 0 0 0 3px rgba(107,126,187,0.1); }
+  .btn-add { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: var(--radius-sm); border: 1.5px dashed var(--border-strong); background: transparent; color: var(--text-secondary); font-family: inherit; font-size: 13px; cursor: pointer; transition: all 0.15s; margin-top: 4px; }
+  .btn-add:hover { border-color: var(--blue-border); color: var(--blue-border); background: var(--blue-bg); }
+
+  /* Track selector */
+  .track-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+  @media (max-width: 560px) { .track-grid { grid-template-columns: repeat(2, 1fr); } }
+  .track-btn { padding: 12px 8px; border-radius: var(--radius); border: 1.5px solid var(--border); background: var(--card-bg); cursor: pointer; text-align: center; transition: all 0.15s; font-family: inherit; }
+  .track-btn:hover { border-color: var(--border-strong); background: var(--page-bg); }
+  .track-btn.active { border-width: 2px; }
+  .track-btn .t-icon { font-size: 22px; margin-bottom: 6px; display: block; }
+  .track-btn .t-name { display: block; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .track-btn .t-sub { display: block; font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .t-comp.active  { border-color: var(--blue-border); background: var(--blue-bg); }
+  .t-comp.active .t-name { color: var(--blue-text); }
+  .t-people.active{ border-color: var(--green-border); background: var(--green-bg); }
+  .t-people.active .t-name { color: var(--green-text); }
+  .t-tech.active  { border-color: var(--purple-border); background: var(--purple-bg); }
+  .t-tech.active .t-name { color: var(--purple-text); }
+  .t-sys.active   { border-color: var(--gray-border); background: var(--gray-bg); }
+  .t-sys.active .t-name { color: var(--gray-text); }
+
+  /* No track placeholder */
+  .no-track { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 14px; border: 1.5px dashed var(--border); border-radius: var(--radius); }
+
+  /* Section cards in track */
+  .section-card { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 12px; }
+  .section-card-header { padding: 11px 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .section-card-header.shared { background: var(--shared-bg); }
+  .section-card-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .section-card-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 999px; white-space: nowrap; flex-shrink: 0; }
+  .badge-shared { background: #eeecea; color: #777; }
+  .section-card-body { padding: 14px 16px; border-top: 1px solid var(--border); }
+  .section-card-body.shared { background: var(--shared-bg); }
+  .prompt { font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 10px; }
+  .prompt strong { color: var(--text-primary); }
+  .section-card-body textarea { width: 100%; font-family: inherit; font-size: 13px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fff; color: var(--text-primary); resize: vertical; min-height: 90px; transition: border-color 0.15s; line-height: 1.6; }
+  .section-card-body textarea:focus { outline: none; border-color: var(--blue-border); box-shadow: 0 0 0 3px rgba(107,126,187,0.1); }
+
+  /* Artist statement */
+  .artist-note { font-size: 14px; color: var(--text-secondary); line-height: 1.7; padding: 4px 0; }
+  .artist-note a { color: var(--blue-border); }
+
+  /* Extra credit */
+  .ec-card { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; background: #fdfcfa; }
+  .ec-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .ec-option { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--text-secondary); }
+  .ec-option input[type=radio] { margin-top: 3px; flex-shrink: 0; accent-color: var(--blue-border); }
+
+  /* Checklist */
+  .checklist { display: flex; flex-direction: column; gap: 8px; }
+  .check-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: #fdfcfa; transition: background 0.15s; }
+  .check-item.done { background: #f0faf4; border-color: var(--green-border); }
+  .check-item input[type=checkbox] { width: 16px; height: 16px; margin-top: 2px; flex-shrink: 0; accent-color: var(--green-border); cursor: pointer; }
+  .check-item label { font-size: 13px; color: var(--text-secondary); cursor: pointer; line-height: 1.5; }
+  .check-item.done label { color: var(--green-text); }
+
+  /* AI Reporting */
+  .ai-field { margin-bottom: 14px; }
+  .ai-field label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
+  .ai-field textarea { width: 100%; font-family: inherit; font-size: 13px; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); resize: vertical; min-height: 60px; color: var(--text-primary); transition: border-color 0.15s; }
+  .ai-field textarea:focus { outline: none; border-color: var(--blue-border); box-shadow: 0 0 0 3px rgba(107,126,187,0.1); }
+
+  /* Action buttons */
+  .actions-bar { display: flex; gap: 10px; margin-top: 2rem; flex-wrap: wrap; }
+  .btn-primary { display: inline-flex; align-items: center; gap: 7px; padding: 11px 20px; border-radius: var(--radius-sm); background: #3d4f8a; color: #fff; border: none; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 500; transition: opacity 0.15s; }
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-secondary { display: inline-flex; align-items: center; gap: 7px; padding: 11px 20px; border-radius: var(--radius-sm); background: #fff; color: var(--text-primary); border: 1px solid var(--border-strong); cursor: pointer; font-family: inherit; font-size: 14px; transition: background 0.15s; }
+  .btn-secondary:hover { background: var(--page-bg); }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; font-size: 13px; padding: 10px 20px; border-radius: 999px; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 999; white-space: nowrap; }
+  .toast.show { opacity: 1; }
+
+  /* Divider */
+  .section-divider { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin: 2rem 0 1rem; display: flex; align-items: center; gap: 10px; }
+  .section-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="page-header">
+    <h1>Research Documentation</h1>
+    <p>Complete all sections below. Your work saves automatically in this browser.</p>
+    <div class="autosave-indicator">
+      <span class="autosave-dot" id="save-dot"></span>
+      <span id="save-label">Auto-save on</span>
+    </div>
+  </div>
+
+  <!-- INSTRUCTIONS -->
+  <div class="card" id="card-instructions">
+    <div class="card-header" onclick="toggleCard('instructions')">
+      <div>
+        <div class="card-title">📋 Assignment Instructions</div>
+        <div class="card-subtitle">Click to expand</div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="collapsible-body hidden" id="body-instructions">
+      <div class="card-body">
+        <ul class="instructions-list">
+          <li>Identify a topic that genuinely interests and motivates you.</li>
+          <li>Form a good research question and include it in the Research Focus Table.</li>
+          <li>Research topics that help answer your question using reliable sources.</li>
+          <li>Complete the Sources Table — at least 3 sources with 3 facts each.</li>
+          <li>Choose one (1) track in the Research Focus Table and complete all rows.</li>
+          <li>Complete the Artist Statement if your deliverable is standalone or intangible (poem, song, sculpture, etc.).</li>
+          <li>Complete the Required AI Reporting section.</li>
+          <li>Create a deliverable you enjoy making and feel proud of.</li>
+        </ul>
+        <p class="instructions-note">
+          Your research will support a <strong>Creative Deliverable</strong> that addresses your research question in an arguable way — one that spurs conversation, not just informs. It should not be a regurgitation of sources, but what <em>you</em> take away from them. The goal is to engage, inspire, and help others make new meaning from the topic.<br><br>
+          <a href="#" class="link">Forming a good research question →</a>&nbsp;&nbsp;
+          <a href="#" class="link">Creative Deliverable Guidelines →</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOURCES -->
+  <div class="section-divider">Sources</div>
+  <div class="card">
+    <div class="card-header static">
+      <div>
+        <div class="card-title">Sources Table</div>
+        <div class="card-subtitle">At least 3 credible sources · 3 facts per source · 9 facts total</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.65;">
+        <strong>Credible:</strong> primary literature, oral history, firsthand account or interview, documentary, newspaper or magazine article, your book share book.<br>
+        <strong>Less credible:</strong> op-eds, gossip columns, social media posts.<br>
+        <strong>Not credible:</strong> Wikipedia, generative AI/LLM outputs (linked citations are OK if reviewed).
+      </p>
+      <div id="sources-container"></div>
+      <button class="btn-add" onclick="addSource()">+ Add source</button>
+    </div>
+  </div>
+
+  <!-- RESEARCH FOCUS TABLE -->
+  <div class="section-divider">Research Focus Table</div>
+  <div class="card">
+    <div class="card-header static">
+      <div>
+        <div class="card-title">Choose your research track</div>
+        <div class="card-subtitle">Select one track — only that column's prompts will appear below</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="track-grid">
+        <button class="track-btn t-comp" onclick="setTrack('comparative')">
+          <span class="t-icon">⇄</span>
+          <span class="t-name">Comparative</span>
+          <span class="t-sub">Compare two things</span>
+        </button>
+        <button class="track-btn t-people" onclick="setTrack('people')">
+          <span class="t-icon">👥</span>
+          <span class="t-name">Focus: People</span>
+          <span class="t-sub">Human impacts</span>
+        </button>
+        <button class="track-btn t-tech" onclick="setTrack('tech')">
+          <span class="t-icon">⚙️</span>
+          <span class="t-name">Focus: Tech</span>
+          <span class="t-sub">Technical depth</span>
+        </button>
+        <button class="track-btn t-sys" onclick="setTrack('systems')">
+          <span class="t-icon">🔗</span>
+          <span class="t-name">Focus: Systems</span>
+          <span class="t-sub">Systemic effects</span>
+        </button>
+      </div>
+      <div id="track-sections">
+        <div class="no-track">← Choose a track above to see your prompts</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARTIST STATEMENT -->
+  <div class="section-divider">Artist Statement</div>
+  <div class="card" id="card-artist">
+    <div class="card-header" onclick="toggleCard('artist')">
+      <div>
+        <div class="card-title">Artist Statement <span style="font-weight:400;color:var(--text-muted)">(conditional)</span></div>
+        <div class="card-subtitle">Only required for standalone or intangible deliverables</div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="collapsible-body hidden" id="body-artist">
+      <div class="card-body">
+        <p class="artist-note">
+          Complete the Artist Statement only if your creative deliverable is standalone or intangible — such as a poem, song, 3D construction, sculpture, demonstration, dance, or similar.<br><br>
+          If your deliverable is abstract, add an artist statement to explain how you have addressed the prompts. For example, you could write a limerick about your topic, but you need to add context so the reader understands how you addressed the assignment.<br><br>
+          <a href="#" class="link">Open Artist Statement document →</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI REPORTING -->
+  <div class="section-divider">Required AI Reporting</div>
+  <div class="card" id="card-ai">
+    <div class="card-header" onclick="toggleCard('ai')">
+      <div>
+        <div class="card-title">AI Use Disclosure</div>
+        <div class="card-subtitle">Required if you used any AI chatbot</div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="collapsible-body" id="body-ai">
+      <div class="card-body">
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.65;">If you used an AI chatbot (ChatGPT, Claude, Gemini, Grok, Co-Pilot, etc.) to complete any part of this assignment, answer the questions below. Remember: AI is an unreliable source and outputs should not be cited directly.</p>
+        <div class="ai-field"><label>1. Which AI chatbot(s) did you use?</label><textarea data-ai="1" placeholder="e.g. ChatGPT, Claude…" rows="2"></textarea></div>
+        <div class="ai-field"><label>2. How did the AI chatbot(s) help you?</label><textarea data-ai="2" placeholder="e.g. brainstorming ideas, summarising a topic…" rows="2"></textarea></div>
+        <div class="ai-field"><label>3. What was/were your initial prompt(s)?</label><textarea data-ai="3" placeholder="Paste or describe your prompts…" rows="3"></textarea></div>
+        <div class="ai-field"><label>4. What data, files, or references did you upload to the AI?</label><textarea data-ai="4" placeholder="Describe any files or links you shared…" rows="2"></textarea></div>
+        <div class="ai-field"><label>5. What outputs did you use and how?</label><textarea data-ai="5" placeholder="Describe what you took from the AI and how you used it…" rows="3"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXTRA CREDIT -->
+  <div class="section-divider">Extra Credit</div>
+  <div class="card" id="card-ec">
+    <div class="card-header" onclick="toggleCard('ec')">
+      <div>
+        <div class="card-title">Extra Credit <span style="font-weight:400;color:var(--text-muted)">+2 points</span></div>
+        <div class="card-subtitle">One additional human-curated source</div>
+      </div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="collapsible-body hidden" id="body-ec">
+      <div class="card-body">
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;">Select your human-curated source type, then complete the table. Your attempt does not automatically earn 2 points.</p>
+        <div class="ec-options">
+          <label class="ec-option"><input type="radio" name="ec-type" value="librarian"> Spoke with a librarian, professor/instructor, or former teacher for a reference or resource.</label>
+          <label class="ec-option"><input type="radio" name="ec-type" value="professional"> Spoke with an industry professional (cannot be entry level) for a reference or resource.</label>
+          <label class="ec-option"><input type="radio" name="ec-type" value="interview"> Interviewed someone for a first-hand account.</label>
+          <label class="ec-option"><input type="radio" name="ec-type" value="oral"> Used an oral history resource.</label>
+          <label class="ec-option"><input type="radio" name="ec-type" value="module"> Used one of the links provided with this week's slides or outline (Module link).</label>
+          <label class="ec-option"><input type="radio" name="ec-type" value="repository"> Used an online human-curated repository.</label>
+        </div>
+        <div class="ec-card">
+          <div class="field-row">
+            <div class="field"><label>Name / Title of source</label><input type="text" data-ec="name" placeholder="e.g. Dr. Jane Smith, The Hidden Life of Trees…"></div>
+            <div class="field"><label>Type of source</label><input type="text" data-ec="type" placeholder="e.g. interview, book, recording…"></div>
+          </div>
+          <div class="field"><label>Link to source (if applicable)</label><input type="text" data-ec="link" placeholder="URL, DOI, or APA citation"></div>
+          <div class="field" style="margin-top:12px"><label>Facts learned</label><textarea data-ec="facts" rows="3" placeholder="Describe the key facts or insights from this source…"></textarea></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHECKLIST -->
+  <div class="section-divider">Submission Checklist</div>
+  <div class="card">
+    <div class="card-header static">
+      <div>
+        <div class="card-title">Before you submit</div>
+        <div class="card-subtitle">Check off each item when complete</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="checklist" id="checklist">
+        <div class="check-item" id="chk-0"><input type="checkbox" id="c0" onchange="updateCheck(0)"><label for="c0">I have identified a topic that genuinely interests me.</label></div>
+        <div class="check-item" id="chk-1"><input type="checkbox" id="c1" onchange="updateCheck(1)"><label for="c1">My research question is included in the Introduction section.</label></div>
+        <div class="check-item" id="chk-2"><input type="checkbox" id="c2" onchange="updateCheck(2)"><label for="c2">I have completed at least 3 sources with 3 facts each (9 facts total).</label></div>
+        <div class="check-item" id="chk-3"><input type="checkbox" id="c3" onchange="updateCheck(3)"><label for="c3">I have chosen one track and completed all rows in the Research Focus Table.</label></div>
+        <div class="check-item" id="chk-4"><input type="checkbox" id="c4" onchange="updateCheck(4)"><label for="c4">I have completed the Artist Statement (if my deliverable is standalone/intangible).</label></div>
+        <div class="check-item" id="chk-5"><input type="checkbox" id="c5" onchange="updateCheck(5)"><label for="c5">I have completed the Required AI Reporting (if I used AI).</label></div>
+        <div class="check-item" id="chk-6"><input type="checkbox" id="c6" onchange="updateCheck(6)"><label for="c6">I have fact-checked claims against at least 2 sources.</label></div>
+        <div class="check-item" id="chk-7"><input type="checkbox" id="c7" onchange="updateCheck(7)"><label for="c7">My creative deliverable addresses my research question in an arguable, engaging way.</label></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPORT ACTIONS -->
+  <div class="actions-bar">
+    <button class="btn-primary" onclick="exportPDF()">⬇ Export as PDF</button>
+    <button class="btn-secondary" onclick="copyAll()">⎘ Copy all responses</button>
+    <button class="btn-secondary" onclick="clearAll()" style="margin-left:auto;color:#c0392b;border-color:#e8c0bb;">✕ Clear all & reset</button>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'research-doc-v1';
+
+const TRACKS = {
+  comparative: {
+    label: 'Comparative', chipBg: '#dce4f7', chipColor: '#2e3f7a',
+    sections: [
+      { key: 'background', title: 'Background', sub: 'Provide clear definitions and applications to your research',
+        prompt: 'Describe the two <strong>institutions</strong>, <strong>people and/or technologies</strong> that will be compared.' },
+      { key: 'context', title: 'People / Context / Tech', sub: '',
+        prompt: 'Compare the impacts and reach of the two institutions, people, and/or technologies as they apply to your research question.' },
+      { key: 'consequence', title: '(Unintended) Consequence', sub: '',
+        prompt: 'Compare the consequences of the institutions, people, and/or technologies as they apply to your research question.' },
+      { key: 'merit', title: 'Intellectual Merit', sub: '',
+        prompt: 'Comment on or demonstrate your intended depth of understanding, specificity, originality or novelty, or use of creative storytelling for the upcoming creative deliverable.' },
+      { key: 'argument1', title: 'Your Argument', sub: '',
+        prompt: 'Clearly present your personal (and now informed) opinion / any self reflection on: <strong>how this topic relates to your personal life or your future work.</strong>' },
+      { key: 'argument2', title: 'Your Argument & Conclusion', sub: '',
+        prompt: 'Refer back to your guiding research question.<br>1. What <strong>assertion or conclusion</strong> are you taking from your research?<br>2. What <strong>conversations or contemplations</strong> are you hoping this inspires?' },
+    ]
+  },
+  people: {
+    label: 'Focus: People', chipBg: '#d4edda', chipColor: '#1e5c33',
+    sections: [
+      { key: 'background', title: 'Background', sub: 'Provide clear definitions and applications to your research',
+        prompt: 'Introduce the <strong>institutions</strong>, <strong>people and/or technologies</strong> involved.' },
+      { key: 'context', title: 'People / Context / Tech', sub: '',
+        prompt: 'Describe the history and context of the institutions, people, and/or technologies from background. Introduce any impacted groups. Are they different? Overlapping?' },
+      { key: 'consequence', title: '(Unintended) Consequence', sub: '',
+        prompt: 'Discuss how the impacts of this feature affect the community. Has it had positive or negative impacts? Did anything unexpected occur?' },
+      { key: 'merit', title: 'Intellectual Merit', sub: '',
+        prompt: 'Comment on or demonstrate your intended depth of understanding, specificity, originality or novelty, or use of creative storytelling for the upcoming creative deliverable.' },
+      { key: 'argument1', title: 'Your Argument', sub: '',
+        prompt: 'Clearly present your personal (and now informed) opinion / any self reflection on: <strong>the negative / positive impacts of this technology decision. How would you a) broadly recommend or b) personally mitigate/amplify impacts?</strong>' },
+      { key: 'argument2', title: 'Your Argument & Conclusion', sub: '',
+        prompt: 'Refer back to your guiding research question.<br>1. What <strong>assertion or conclusion</strong> are you taking from your research?<br>2. What <strong>conversations or contemplations</strong> are you hoping this inspires?' },
+    ]
+  },
+  tech: {
+    label: 'Focus: Tech', chipBg: '#e8d8f7', chipColor: '#4a2b7a',
+    sections: [
+      { key: 'background', title: 'Background', sub: 'Provide clear definitions and applications to your research',
+        prompt: 'Introduce the <strong>institutions</strong>, <strong>people and/or technologies</strong> involved.' },
+      { key: 'context', title: 'People / Context / Tech', sub: '',
+        prompt: 'Describe the technical details of the technology you are exploring. Describe any relevant implementations. Define all jargon.' },
+      { key: 'consequence', title: '(Unintended) Consequence', sub: '',
+        prompt: 'Describe the consequences of the technology implementation. Are there unanticipated technical, social, or resource challenges?' },
+      { key: 'merit', title: 'Intellectual Merit', sub: '',
+        prompt: 'Comment on or demonstrate your intended depth of understanding, specificity, originality or novelty, or use of creative storytelling for the upcoming creative deliverable.' },
+      { key: 'argument1', title: 'Your Argument', sub: '',
+        prompt: 'Clearly present your personal (and now informed) opinion / any self reflection on: <strong>how this technological application relates to or affects your own life. What recommendations would you make to your communities?</strong>' },
+      { key: 'argument2', title: 'Your Argument & Conclusion', sub: '',
+        prompt: 'Refer back to your guiding research question.<br>1. What <strong>assertion or conclusion</strong> are you taking from your research?<br>2. What <strong>conversations or contemplations</strong> are you hoping this inspires?' },
+    ]
+  },
+  systems: {
+    label: 'Focus: Systems', chipBg: '#F1EFE8', chipColor: '#444441',
+    sections: [
+      { key: 'background', title: 'Background', sub: 'Provide clear definitions and applications to your research',
+        prompt: 'Introduce the <strong>institutions</strong>, <strong>people and/or technologies</strong> involved.' },
+      { key: 'context', title: 'People / Context / Tech', sub: '',
+        prompt: 'Describe the application of technology. Introduce the people or entities currently impacted by the application of this technology.' },
+      { key: 'consequence', title: '(Unintended) Consequence', sub: '',
+        prompt: 'What are the consequences that have already happened, or you propose could happen? Support your claims.' },
+      { key: 'merit', title: 'Intellectual Merit', sub: '',
+        prompt: 'Comment on or demonstrate your intended depth of understanding, specificity, originality or novelty, or use of creative storytelling for the upcoming creative deliverable.' },
+      { key: 'argument1', title: 'Your Argument', sub: '',
+        prompt: 'Clearly present your personal (and now informed) opinion / any self reflection on: <strong>how this topic relates to your personal life or your future work. What relative actions would you take in your communities?</strong>' },
+      { key: 'argument2', title: 'Your Argument & Conclusion', sub: '',
+        prompt: 'Refer back to your guiding research question.<br>1. What <strong>assertion or conclusion</strong> are you taking from your research?<br>2. What <strong>conversations or contemplations</strong> are you hoping this inspires?' },
+    ]
+  }
+};
+
+const INTRO_PROMPT = '1. Clearly state the topic from this module that you are addressing.\n2. State your research question.\n3. Explain how your question relates to the topic and your personal values.\nIn other words: What are you talking about and why is it important?';
+
+let state = { track: null, trackAnswers: {}, sources: [], aiAnswers: {}, ecAnswers: {}, ecType: '', checks: [], sourceCount: 0 };
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) state = { ...state, ...JSON.parse(raw) };
+  } catch(e) {}
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    flashSave();
+  } catch(e) {}
+}
+
+let saveTimer;
+function debounceSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveState, 600); }
+
+function flashSave() {
+  document.getElementById('save-label').textContent = 'Saved';
+  setTimeout(() => { document.getElementById('save-label').textContent = 'Auto-save on'; }, 1500);
+}
+
+// COLLAPSIBLE
+function toggleCard(id) {
+  const card = document.getElementById('card-' + id);
+  const body = document.getElementById('body-' + id);
+  const chevron = card.querySelector('.chevron');
+  const isHidden = body.classList.contains('hidden');
+  body.classList.toggle('hidden', !isHidden);
+  card.classList.toggle('collapsed', isHidden);
+  if (chevron) chevron.style.transform = isHidden ? '' : 'rotate(-90deg)';
+}
+
+// SOURCES
+function addSource(data) {
+  const idx = state.sourceCount++;
+  const s = data || { name:'', desc:'', mediaType:'', sourceType:'', location:'', facts:['','',''] };
+  // Migrate old fact1/fact2/fact3 format
+  if (!s.facts) s.facts = [s.fact1||'', s.fact2||'', s.fact3||''];
+  const div = document.createElement('div');
+  div.className = 'source-card';
+  div.id = 'source-' + idx;
+  div.innerHTML = `
+    <div class="source-card-header">
+      <span class="source-label">Source ${document.querySelectorAll('.source-card').length + 1}</span>
+      <button class="btn-remove" onclick="removeSource('source-${idx}')" title="Remove source">×</button>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Name of source</label><input type="text" data-src="${idx}" data-field="name" value="${esc(s.name)}" placeholder="Title, author, publication…"></div>
+      <div class="field"><label>Description</label><input type="text" data-src="${idx}" data-field="desc" value="${esc(s.desc)}" placeholder="Brief description…"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Media type</label><input type="text" data-src="${idx}" data-field="mediaType" value="${esc(s.mediaType)}" placeholder="e.g. video, audio, text…"></div>
+      <div class="field"><label>Source type</label><input type="text" data-src="${idx}" data-field="sourceType" value="${esc(s.sourceType)}" placeholder="e.g. podcast, peer-reviewed article…"></div>
+    </div>
+    <div class="field"><label>Location (URL, DOI, or APA citation)</label><input type="text" data-src="${idx}" data-field="location" value="${esc(s.location)}" placeholder="How can we find it?"></div>
+    <div style="margin-top:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <span class="facts-label" style="margin:0">Facts or findings (3 required)</span>
+        <button class="btn-add-fact" onclick="addFact(${idx})" style="font-size:12px;padding:4px 10px;border-radius:4px;border:1px dashed var(--border-strong);background:transparent;color:var(--text-secondary);cursor:pointer;">+ Add fact</button>
+      </div>
+      <div class="facts-list" id="facts-${idx}"></div>
+    </div>`;
+  document.getElementById('sources-container').appendChild(div);
+  // Bind meta fields
+  div.querySelectorAll('input[data-field]').forEach(el => {
+    el.addEventListener('input', () => {
+      const i = el.dataset.src, f = el.dataset.field;
+      if (!state.sources[i]) state.sources[i] = { facts: [] };
+      state.sources[i][f] = el.value;
+      debounceSave();
+    });
+  });
+  // Render existing facts
+  if (!state.sources[idx]) state.sources[idx] = { facts: s.facts };
+  else if (!state.sources[idx].facts) state.sources[idx].facts = s.facts;
+  s.facts.forEach((val, fi) => renderFact(idx, fi, val));
+  renumberSources();
+}
+
+function renderFact(srcIdx, factIdx, value) {
+  const container = document.getElementById('facts-' + srcIdx);
+  const row = document.createElement('div');
+  row.className = 'fact-row';
+  row.id = `fact-${srcIdx}-${factIdx}`;
+  row.style.cssText = 'display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;';
+  row.innerHTML = `
+    <span style="font-size:12px;font-weight:600;color:var(--text-muted);padding-top:10px;min-width:20px;text-align:right">${factIdx+1}</span>
+    <textarea style="flex:1;font-family:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);resize:vertical;min-height:60px;color:var(--text-primary);transition:border-color 0.15s;" placeholder="Fact ${factIdx+1}…">${esc(value)}</textarea>
+    <button onclick="removeFact(${srcIdx},${factIdx})" title="Remove fact" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:8px 2px;line-height:1;">×</button>`;
+  container.appendChild(row);
+  row.querySelector('textarea').addEventListener('input', e => {
+    if (!state.sources[srcIdx]) state.sources[srcIdx] = { facts: [] };
+    state.sources[srcIdx].facts[factIdx] = e.target.value;
+    debounceSave();
+  });
+  row.querySelector('textarea').addEventListener('focus', e => { e.target.style.borderColor = 'var(--blue-border)'; e.target.style.boxShadow = '0 0 0 3px rgba(107,126,187,0.1)'; });
+  row.querySelector('textarea').addEventListener('blur', e => { e.target.style.borderColor = 'var(--border)'; e.target.style.boxShadow = 'none'; });
+}
+
+function addFact(srcIdx) {
+  if (!state.sources[srcIdx]) state.sources[srcIdx] = { facts: [] };
+  const fi = state.sources[srcIdx].facts.length;
+  state.sources[srcIdx].facts.push('');
+  renderFact(srcIdx, fi, '');
+  renumberFacts(srcIdx);
+  debounceSave();
+}
+
+function removeFact(srcIdx, factIdx) {
+  const row = document.getElementById(`fact-${srcIdx}-${factIdx}`);
+  if (row) row.remove();
+  if (state.sources[srcIdx]?.facts) state.sources[srcIdx].facts.splice(factIdx, 1);
+  // Re-render remaining facts fresh to fix indices
+  const container = document.getElementById('facts-' + srcIdx);
+  container.innerHTML = '';
+  (state.sources[srcIdx]?.facts || []).forEach((val, fi) => renderFact(srcIdx, fi, val));
+  debounceSave();
+}
+
+function renumberFacts(srcIdx) {
+  const container = document.getElementById('facts-' + srcIdx);
+  if (!container) return;
+  container.querySelectorAll('.fact-row').forEach((row, i) => {
+    row.querySelector('span').textContent = i + 1;
+    row.querySelector('textarea').placeholder = 'Fact ' + (i + 1) + '…';
+  });
+}
+
+function removeSource(id) {
+  document.getElementById(id)?.remove();
+  renumberSources();
+  debounceSave();
+}
+
+function renumberSources() {
+  document.querySelectorAll('.source-card').forEach((el, i) => {
+    el.querySelector('.source-label').textContent = 'Source ' + (i + 1);
+  });
+}
+
+// TRACK
+function setTrack(track) {
+  state.track = track;
+  document.querySelectorAll('.track-btn').forEach(b => b.classList.remove('active'));
+  const map = { comparative:'t-comp', people:'t-people', tech:'t-tech', systems:'t-sys' };
+  document.querySelector('.' + map[track]).classList.add('active');
+  renderTrackSections();
+  debounceSave();
+}
+
+function renderTrackSections() {
+  const area = document.getElementById('track-sections');
+  if (!state.track) { area.innerHTML = '<div class="no-track">← Choose a track above to see your prompts</div>'; return; }
+  const t = TRACKS[state.track];
+  let html = '';
+  // Intro (shared)
+  const introVal = state.trackAnswers['intro'] || '';
+  html += `<div class="section-card">
+    <div class="section-card-header shared">
+      <div><div class="section-card-title">Introduction</div></div>
+      <span class="badge badge-shared">All tracks</span>
+    </div>
+    <div class="section-card-body shared">
+      <p class="prompt">${INTRO_PROMPT.replace(/\n/g,'<br>')}</p>
+      <textarea data-track-key="intro" rows="5" placeholder="Write your response here…">${esc(introVal)}</textarea>
+    </div>
+  </div>`;
+  // Track sections
+  t.sections.forEach(s => {
+    const val = state.trackAnswers[s.key] || '';
+    html += `<div class="section-card">
+      <div class="section-card-header" style="background:${t.chipBg}20;">
+        <div>
+          <div class="section-card-title">${s.title}</div>
+          ${s.sub ? `<div class="section-card-sub">${s.sub}</div>` : ''}
+        </div>
+        <span class="badge" style="background:${t.chipBg};color:${t.chipColor};">${t.label}</span>
+      </div>
+      <div class="section-card-body">
+        <p class="prompt">${s.prompt}</p>
+        <textarea data-track-key="${s.key}" rows="5" placeholder="Write your response here…">${esc(val)}</textarea>
+      </div>
+    </div>`;
+  });
+  area.innerHTML = html;
+  area.querySelectorAll('textarea[data-track-key]').forEach(ta => {
+    ta.addEventListener('input', () => {
+      state.trackAnswers[ta.dataset.trackKey] = ta.value;
+      debounceSave();
+    });
+  });
+}
+
+// CHECKLIST
+function updateCheck(i) {
+  state.checks[i] = document.getElementById('c' + i).checked;
+  document.getElementById('chk-' + i).classList.toggle('done', !!state.checks[i]);
+  debounceSave();
+}
+
+function restoreChecks() {
+  (state.checks || []).forEach((v, i) => {
+    const el = document.getElementById('c' + i);
+    if (el) { el.checked = !!v; document.getElementById('chk-' + i)?.classList.toggle('done', !!v); }
+  });
+}
+
+// AI FIELDS
+function bindAIFields() {
+  document.querySelectorAll('[data-ai]').forEach(el => {
+    const k = el.dataset.ai;
+    if (state.aiAnswers[k]) el.value = state.aiAnswers[k];
+    el.addEventListener('input', () => { state.aiAnswers[k] = el.value; debounceSave(); });
+  });
+}
+
+// EC FIELDS
+function bindECFields() {
+  document.querySelectorAll('[data-ec]').forEach(el => {
+    const k = el.dataset.ec;
+    if (state.ecAnswers[k]) el.value = state.ecAnswers[k];
+    el.addEventListener('input', () => { state.ecAnswers[k] = el.value; debounceSave(); });
+  });
+  document.querySelectorAll('[name="ec-type"]').forEach(el => {
+    if (el.value === state.ecType) el.checked = true;
+    el.addEventListener('change', () => { state.ecType = el.value; debounceSave(); });
+  });
+}
+
+// EXPORT
+function stripHtml(h) { return h.replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,''); }
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function buildPlainText() {
+  const t = state.track ? TRACKS[state.track] : null;
+  let out = 'RESEARCH DOCUMENTATION\n' + '='.repeat(50) + '\n\n';
+  // Sources
+  out += 'SOURCES\n' + '-'.repeat(30) + '\n';
+  document.querySelectorAll('.source-card').forEach((sc, i) => {
+    const inputs = {};
+    sc.querySelectorAll('input[data-field]').forEach(el => { inputs[el.dataset.field] = el.value; });
+    const srcIdx = sc.id.replace('source-','');
+    const facts = state.sources[srcIdx]?.facts || [];
+    out += `\nSource ${i+1}: ${inputs.name||'(unnamed)'}\n`;
+    out += `  Description: ${inputs.desc||''}\n  Media: ${inputs.mediaType||''} | Type: ${inputs.sourceType||''}\n  Location: ${inputs.location||''}\n`;
+    facts.forEach((f, fi) => { out += `  Fact ${fi+1}: ${f||''}\n`; });
+  });
+  out += '\n\nRESEARCH FOCUS TABLE';
+  if (t) out += ' — ' + t.label;
+  out += '\n' + '-'.repeat(30) + '\n\n';
+  if (t) {
+    out += `Introduction\n${INTRO_PROMPT}\nResponse:\n${state.trackAnswers['intro']||'(no response)'}\n\n`;
+    t.sections.forEach(s => {
+      out += `${s.title}\n${stripHtml(s.prompt)}\nResponse:\n${state.trackAnswers[s.key]||'(no response)'}\n\n`;
+    });
+  }
+  out += '\nAI REPORTING\n' + '-'.repeat(30) + '\n';
+  ['1','2','3','4','5'].forEach((k,i) => {
+    const labels = ['Which AI chatbot(s)?','How did they help?','Initial prompts?','Data/files uploaded?','Outputs used?'];
+    out += `${i+1}. ${labels[i]}\n${state.aiAnswers[k]||'(no response)'}\n\n`;
+  });
+  return out;
+}
+
+function exportPDF() {
+  const t = state.track ? TRACKS[state.track] : null;
+  let body = '';
+  // Sources
+  body += '<h2>Sources</h2>';
+  document.querySelectorAll('.source-card').forEach((sc, i) => {
+    const inputs = {};
+    sc.querySelectorAll('input[data-field]').forEach(el => { inputs[el.dataset.field] = el.value; });
+    const srcIdx = sc.id.replace('source-','');
+    const facts = state.sources[srcIdx]?.facts || [];
+    body += `<div class="section"><h3>Source ${i+1}: ${inputs.name||'(unnamed)'}</h3>
+      <p><strong>Description:</strong> ${inputs.desc||'—'}</p>
+      <p><strong>Media:</strong> ${inputs.mediaType||'—'} &nbsp;|&nbsp; <strong>Type:</strong> ${inputs.sourceType||'—'}</p>
+      <p><strong>Location:</strong> ${inputs.location||'—'}</p>
+      ${facts.map((f,fi) => `<p><strong>Fact ${fi+1}:</strong> ${f||'—'}</p>`).join('')}
+      </div>`;
+  });
+  // Track
+  body += `<h2>Research Focus Table${t?' — '+t.label:''}</h2>`;
+  if (t) {
+    body += `<div class="section"><h3>Introduction <span class="all-badge">All tracks</span></h3><p class="prompt">${INTRO_PROMPT.replace(/\n/g,'<br>')}</p><div class="response">${(state.trackAnswers['intro']||'').replace(/\n/g,'<br>')||'<em>No response</em>'}</div></div>`;
+    t.sections.forEach(s => {
+      body += `<div class="section"><h3>${s.title} <span class="track-badge" style="background:${t.chipBg};color:${t.chipColor}">${t.label}</span></h3><p class="prompt">${s.prompt}</p><div class="response">${(state.trackAnswers[s.key]||'').replace(/\n/g,'<br>')||'<em>No response</em>'}</div></div>`;
+    });
+  }
+  // AI
+  body += '<h2>AI Reporting</h2>';
+  const aiLabels = ['Which AI chatbot(s)?','How did they help?','Initial prompts?','Data/files uploaded?','Outputs used?'];
+  aiLabels.forEach((lbl,i) => {
+    const k = String(i+1);
+    body += `<div class="section"><h3>${i+1}. ${lbl}</h3><div class="response">${(state.aiAnswers[k]||'').replace(/\n/g,'<br>')||'<em>No response</em>'}</div></div>`;
+  });
+
+  const win = window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>Research Documentation</title>
+  <style>
+    body{font-family:Georgia,serif;max-width:720px;margin:40px auto;color:#111;font-size:14px;line-height:1.75;padding:0 20px}
+    h1{font-size:22px;border-bottom:2px solid #333;padding-bottom:8px;margin-bottom:6px}
+    .meta{font-size:12px;color:#777;margin-bottom:28px}
+    h2{font-size:16px;font-weight:bold;margin:32px 0 10px;border-bottom:1px solid #ddd;padding-bottom:4px}
+    h3{font-size:14px;font-weight:bold;margin:18px 0 6px;display:flex;align-items:center;gap:8px}
+    .section{margin-bottom:20px;page-break-inside:avoid}
+    .prompt{font-size:12px;color:#555;border-left:3px solid #ccc;padding-left:10px;margin-bottom:8px}
+    .response{border:1px solid #ddd;border-radius:5px;padding:10px 14px;min-height:50px;background:#fafafa;font-size:13px}
+    .track-badge{font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600}
+    .all-badge{font-size:11px;padding:2px 8px;border-radius:999px;background:#eee;color:#666;font-weight:600}
+    @media print{body{margin:20px}}
+  </style></head><body>
+  <h1>Research Documentation</h1>
+  <div class="meta">Exported ${new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</div>
+  ${body}
+  <script>window.onload=function(){window.print()}<\/script>
+  </body></html>`);
+  win.document.close();
+}
+
+function copyAll() {
+  navigator.clipboard.writeText(buildPlainText()).then(() => showToast('Copied to clipboard!'));
+}
+
+function clearAll() {
+  if (!confirm('This will clear all your responses and reset the form. Are you sure?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// INIT
+loadState();
+
+// Restore sources
+const savedSources = state.sources || [];
+const srcKeys = Object.keys(savedSources).filter(k => savedSources[k]);
+if (srcKeys.length === 0) { addSource(); addSource(); addSource(); }
+else { srcKeys.forEach(k => addSource(savedSources[k])); }
+
+// Restore track
+if (state.track) setTrack(state.track);
+
+// Restore AI & EC after DOM ready
+bindAIFields();
+bindECFields();
+restoreChecks();
+</script>
+</body>
+</html>
