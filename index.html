@@ -113,10 +113,6 @@
   .section-card-body textarea { width: 100%; font-family: inherit; font-size: 13px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fff; color: var(--text-primary); resize: vertical; min-height: 90px; transition: border-color 0.15s; line-height: 1.6; }
   .section-card-body textarea:focus { outline: none; border-color: var(--blue-border); box-shadow: 0 0 0 3px rgba(107,126,187,0.1); }
 
-  /* Artist statement */
-  .artist-note { font-size: 14px; color: var(--text-secondary); line-height: 1.7; padding: 4px 0; }
-  .artist-note a { color: var(--blue-border); }
-
   /* Extra credit */
   .ec-card { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; background: #fdfcfa; }
   .ec-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
@@ -159,9 +155,12 @@
   <div class="page-header">
     <h1>Research Documentation</h1>
     <p>Complete all sections below. Your work saves automatically in this browser.</p>
-    <div class="autosave-indicator">
-      <span class="autosave-dot" id="save-dot"></span>
-      <span id="save-label">Auto-save on</span>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:8px;">
+      <div class="autosave-indicator" style="margin-top:0">
+        <span class="autosave-dot" id="save-dot"></span>
+        <span id="save-label">Auto-save on</span>
+      </div>
+      <button class="btn-secondary" onclick="clearAll()" style="padding:7px 14px;font-size:13px;color:#c0392b;border-color:#e8c0bb;">✕ Clear &amp; reset</button>
     </div>
   </div>
 
@@ -182,7 +181,7 @@
           <li>Research topics that help answer your question using reliable sources.</li>
           <li>Complete the Sources Table — at least 3 sources with 3 facts each.</li>
           <li>Choose one (1) track in the Research Focus Table and complete all rows.</li>
-          <li>Complete the Artist Statement if your deliverable is standalone or intangible (poem, song, sculpture, etc.).</li>
+          <li><s>Complete the Artist Statement if your deliverable is standalone or intangible (poem, song, sculpture, etc.).</s></li>
           <li>Complete the Required AI Reporting section.</li>
           <li>Create a deliverable you enjoy making and feel proud of.</li>
         </ul>
@@ -249,27 +248,6 @@
       </div>
       <div id="track-sections">
         <div class="no-track">← Choose a track above to see your prompts</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ARTIST STATEMENT -->
-  <div class="section-divider">Artist Statement</div>
-  <div class="card" id="card-artist">
-    <div class="card-header" onclick="toggleCard('artist')">
-      <div>
-        <div class="card-title">Artist Statement <span style="font-weight:400;color:var(--text-muted)">(conditional)</span></div>
-        <div class="card-subtitle">Only required for standalone or intangible deliverables</div>
-      </div>
-      <span class="chevron">▾</span>
-    </div>
-    <div class="collapsible-body hidden" id="body-artist">
-      <div class="card-body">
-        <p class="artist-note">
-          Complete the Artist Statement only if your creative deliverable is standalone or intangible — such as a poem, song, 3D construction, sculpture, demonstration, dance, or similar.<br><br>
-          If your deliverable is abstract, add an artist statement to explain how you have addressed the prompts. For example, you could write a limerick about your topic, but you need to add context so the reader understands how you addressed the assignment.<br><br>
-          <a href="#" class="link">Open Artist Statement document →</a>
-        </p>
       </div>
     </div>
   </div>
@@ -344,7 +322,7 @@
         <div class="check-item" id="chk-1"><input type="checkbox" id="c1" onchange="updateCheck(1)"><label for="c1">My research question is included in the Introduction section.</label></div>
         <div class="check-item" id="chk-2"><input type="checkbox" id="c2" onchange="updateCheck(2)"><label for="c2">I have completed at least 3 sources with 3 facts each (9 facts total).</label></div>
         <div class="check-item" id="chk-3"><input type="checkbox" id="c3" onchange="updateCheck(3)"><label for="c3">I have chosen one track and completed all rows in the Research Focus Table.</label></div>
-        <div class="check-item" id="chk-4"><input type="checkbox" id="c4" onchange="updateCheck(4)"><label for="c4">I have completed the Artist Statement (if my deliverable is standalone/intangible).</label></div>
+        <div class="check-item" id="chk-4"><input type="checkbox" id="c4" onchange="updateCheck(4)"><label for="c4"><s></x>I have completed the Artist Statement (if my deliverable is standalone/intangible).</s></label></div>
         <div class="check-item" id="chk-5"><input type="checkbox" id="c5" onchange="updateCheck(5)"><label for="c5">I have completed the Required AI Reporting (if I used AI).</label></div>
         <div class="check-item" id="chk-6"><input type="checkbox" id="c6" onchange="updateCheck(6)"><label for="c6">I have fact-checked claims against at least 2 sources.</label></div>
         <div class="check-item" id="chk-7"><input type="checkbox" id="c7" onchange="updateCheck(7)"><label for="c7">My creative deliverable addresses my research question in an arguable, engaging way.</label></div>
@@ -379,9 +357,9 @@ const TRACKS = {
       { key: 'merit', title: 'Intellectual Merit', sub: '',
         prompt: 'Comment on or demonstrate your intended depth of understanding, specificity, originality or novelty, or use of creative storytelling for the upcoming creative deliverable.' },
       { key: 'argument1', title: 'Your Argument', sub: '',
-        prompt: 'Clearly present your personal (and now informed) opinion / any self reflection on: <strong>how this topic relates to your personal life or your future work.</strong>' },
-      { key: 'argument2', title: 'Your Argument & Conclusion', sub: '',
-        prompt: 'Refer back to your guiding research question.<br>1. What <strong>assertion or conclusion</strong> are you taking from your research?<br>2. What <strong>conversations or contemplations</strong> are you hoping this inspires?' },
+        prompt: 'Clearly present your personal (and now informed) opinion or any self reflection on: <strong>how this topic relates to your personal life, personal values or future work.</strong>' },
+      { key: 'argument2', title: 'Conclusion & Discussion Questions', sub: '',
+        prompt: 'Refer back to your guiding research question.<br>1. What <strong>assertion or conclusion</strong> can you take from your research?<br>2. What conversations or contemplations are you hoping this inspires?' },
     ]
   },
   people: {
@@ -397,8 +375,8 @@ const TRACKS = {
         prompt: 'Comment on or demonstrate your intended depth of understanding, specificity, originality or novelty, or use of creative storytelling for the upcoming creative deliverable.' },
       { key: 'argument1', title: 'Your Argument', sub: '',
         prompt: 'Clearly present your personal (and now informed) opinion / any self reflection on: <strong>the negative / positive impacts of this technology decision. How would you a) broadly recommend or b) personally mitigate/amplify impacts?</strong>' },
-      { key: 'argument2', title: 'Your Argument & Conclusion', sub: '',
-        prompt: 'Refer back to your guiding research question.<br>1. What <strong>assertion or conclusion</strong> are you taking from your research?<br>2. What <strong>conversations or contemplations</strong> are you hoping this inspires?' },
+      { key: 'argument2', title: 'Conclusion & Discussion Questions', sub: '',
+        prompt: 'Refer back to your guiding research question.<br>1. What <strong>assertion or conclusion</strong> can you take from your research?<br>2. What conversations or contemplations are you hoping this inspires?' },
     ]
   },
   tech: {
@@ -414,8 +392,8 @@ const TRACKS = {
         prompt: 'Comment on or demonstrate your intended depth of understanding, specificity, originality or novelty, or use of creative storytelling for the upcoming creative deliverable.' },
       { key: 'argument1', title: 'Your Argument', sub: '',
         prompt: 'Clearly present your personal (and now informed) opinion / any self reflection on: <strong>how this technological application relates to or affects your own life. What recommendations would you make to your communities?</strong>' },
-      { key: 'argument2', title: 'Your Argument & Conclusion', sub: '',
-        prompt: 'Refer back to your guiding research question.<br>1. What <strong>assertion or conclusion</strong> are you taking from your research?<br>2. What <strong>conversations or contemplations</strong> are you hoping this inspires?' },
+      { key: 'argument2', title: 'Conclusion & Discussion Questions', sub: '',
+        prompt: 'Refer back to your guiding research question.<br>1. What <strong>assertion or conclusion</strong> can you take from your research?<br>2. What conversations or contemplations are you hoping this inspires?' },
     ]
   },
   systems: {
@@ -431,8 +409,8 @@ const TRACKS = {
         prompt: 'Comment on or demonstrate your intended depth of understanding, specificity, originality or novelty, or use of creative storytelling for the upcoming creative deliverable.' },
       { key: 'argument1', title: 'Your Argument', sub: '',
         prompt: 'Clearly present your personal (and now informed) opinion / any self reflection on: <strong>how this topic relates to your personal life or your future work. What relative actions would you take in your communities?</strong>' },
-      { key: 'argument2', title: 'Your Argument & Conclusion', sub: '',
-        prompt: 'Refer back to your guiding research question.<br>1. What <strong>assertion or conclusion</strong> are you taking from your research?<br>2. What <strong>conversations or contemplations</strong> are you hoping this inspires?' },
+      { key: 'argument2', title: 'Conclusion & Discussion Questions', sub: '',
+        prompt: 'Refer back to your guiding research question.<br>1. What <strong>assertion or conclusion</strong> can you take from your research?<br>2. What conversations or contemplations are you hoping this inspires?' },
     ]
   }
 };
@@ -515,8 +493,7 @@ function addSource(data) {
     });
   });
   // Render existing facts
-  if (!state.sources[idx]) state.sources[idx] = { facts: s.facts };
-  else if (!state.sources[idx].facts) state.sources[idx].facts = s.facts;
+  state.sources[idx] = { ...s, facts: [...s.facts] };
   s.facts.forEach((val, fi) => renderFact(idx, fi, val));
   renumberSources();
 }
@@ -571,6 +548,8 @@ function renumberFacts(srcIdx) {
 }
 
 function removeSource(id) {
+  const idx = id.replace('source-', '');
+  delete state.sources[idx];
   document.getElementById(id)?.remove();
   renumberSources();
   debounceSave();
@@ -768,7 +747,8 @@ function copyAll() {
 
 function clearAll() {
   if (!confirm('This will clear all your responses and reset the form. Are you sure?')) return;
-  localStorage.removeItem(STORAGE_KEY);
+  clearTimeout(saveTimer);
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
   location.reload();
 }
 
@@ -782,10 +762,14 @@ function showToast(msg) {
 loadState();
 
 // Restore sources
-const savedSources = state.sources || [];
-const srcKeys = Object.keys(savedSources).filter(k => savedSources[k]);
-if (srcKeys.length === 0) { addSource(); addSource(); addSource(); }
-else { srcKeys.forEach(k => addSource(savedSources[k])); }
+// Take a snapshot of what was saved, then reset the counters so each restored
+// source is re-registered at a fresh index (0, 1, 2…) instead of piling up.
+const savedSources = (Array.isArray(state.sources) ? state.sources : Object.values(state.sources || {})).filter(Boolean);
+state.sources = [];
+state.sourceCount = 0;
+document.getElementById('sources-container').innerHTML = '';
+if (savedSources.length === 0) { addSource(); addSource(); addSource(); }
+else { savedSources.forEach(src => addSource(src)); }
 
 // Restore track
 if (state.track) setTrack(state.track);
